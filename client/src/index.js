@@ -1,3 +1,5 @@
+//Copyright (c) 2022 Panshak Solomon
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';

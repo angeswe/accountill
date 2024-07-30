@@ -2,16 +2,16 @@ import React, { useState } from 'react'
 import Field from './Field'
 import useStyles from './styles'
 import styles from './Login.module.css'
-import { GoogleLogin } from 'react-google-login'
+import {GoogleLogin, GoogleOAuthProvider} from '@react-oauth/google'
+import jwtDecode from 'jwt-decode'
 import {useDispatch} from 'react-redux'
 import { useHistory, Link } from 'react-router-dom'
 import { signup, signin } from '../../actions/auth'
 import { Avatar, Button, Paper, Grid, Typography, Container } from '@material-ui/core'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 import { createProfile } from '../../actions/profile'
-// import Google from './Google'
 import { useSnackbar } from 'react-simple-snackbar'
-import ProgressButton from 'react-progress-button'
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 
 
@@ -28,6 +28,7 @@ const Login = () => {
      // eslint-disable-next-line 
     const [openSnackbar, closeSnackbar] = useSnackbar()
     const user = JSON.parse(localStorage.getItem('profile'))
+    const [loading, setLoading] = useState(false)
     
     const handleShowPassword = () => setShowPassword(!showPassword);
     const handleChange =(e)=> {
@@ -37,10 +38,11 @@ const Login = () => {
     const handleSubmit =(e) => {
         e.preventDefault()
         if(isSignup) {
-            dispatch(signup(formData, openSnackbar))
+            dispatch(signup(formData, openSnackbar, setLoading))
         } else {
-            dispatch(signin(formData, openSnackbar))
+            dispatch(signin(formData, openSnackbar, setLoading))
         }
+        setLoading(true)
     }
 
 
@@ -49,10 +51,9 @@ const Login = () => {
     }
 
     const googleSuccess = async (res) => {
-        console.log(res)
-        const result = res?.profileObj
-        const token = res?.tokenId
-        dispatch(createProfile({name: result?.name, email: result?.email, userId: result?.googleId, phoneNumber: '', businessName: '', contactAddress: '', logo: result?.imageUrl, website: ''}))
+        const result = jwtDecode(res.credential);
+        const token = res?.credential;
+        dispatch(createProfile({name: result?.name, email: result?.email, userId: result?.jti, phoneNumber: '', businessName: '', contactAddress: '', logo: result?.picture, website: ''}))
 
         try {
             dispatch({ type: "AUTH", data: {result, token}})
@@ -95,18 +96,27 @@ const Login = () => {
           <div className={styles.buttons}>
                <div>
                     {/* <button className={styles.submitBtn}> { isSignup ? 'Sign Up' : 'Sign In' }</button> */}
-                    <ProgressButton>{ isSignup ? 'Sign Up' : 'Sign In' }</ProgressButton>
+                    {/* <ProgressButton>{ isSignup ? 'Sign Up' : 'Sign In' }</ProgressButton> */}
+                    {loading ? <CircularProgress /> 
+                    : 
+                    <button className={styles.loginBtn} >{ isSignup ? 'Sign Up' : 'Sign In' }</button>
+                    }
+                    
+                </div>
+                <div className={styles.option}>
+                  <span>or</span>
                 </div>
                 <div> 
+                  <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
                     <GoogleLogin
-                    clientId = {process.env.REACT_APP_GOOGLE_CLIENT_ID}
-                    render={(renderProps) => (
-                        <button className={styles.googleBtn} onClick={renderProps.onClick} disabled={renderProps.disabled} >Google</button>
-                    )}
-                    onSuccess={googleSuccess}
-                    onFailure={googleError}
-                    cookiePolicy="single_host_origin"
-                />
+                      onSuccess={googleSuccess}
+                      onError={googleError}
+                      text='continue_with'
+                      useOneTap
+                      auto_select
+                      state_cookie_domain='single_host_origin'
+                    />
+                  </GoogleOAuthProvider>
                 </div>
           </div>
           <Grid container justifyContent="flex-end">

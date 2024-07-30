@@ -28,14 +28,14 @@ import Divider from '@material-ui/core/Divider';
 import SaveIcon from '@material-ui/icons/Save';
 import Button from '@material-ui/core/Button';
 import Chip from '@material-ui/core/Chip';
-
 import {initialState} from '../../initialState'
 import currencies from '../../currencies.json'
 import { createInvoice, getInvoice, updateInvoice } from '../../actions/invoiceActions';
 import { getClientsByUser } from '../../actions/clientActions'
 import AddClient from './AddClient';
 import InvoiceType from './InvoiceType';
-// import SelectType from './SelectType'
+import axios from 'axios'
+import { useLocation } from 'react-router-dom'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -62,6 +62,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Invoice = () => {
 
+    const location = useLocation()
     const [invoiceData, setInvoiceData] = useState(initialState)
     const [ rates, setRates] = useState(0)
     const [vat, setVat] = useState(0)
@@ -71,7 +72,7 @@ const Invoice = () => {
     const today = new Date();
     const [selectedDate, setSelectedDate] = useState(today.getTime() + 7 * 24 * 60 * 60 * 1000);
     const [ client, setClient] = useState(null)
-    const [type, setType] = React.useState('Invoice')
+    const [type, setType] = useState('Invoice')
     const [status, setStatus ] = useState('')
     const { id } = useParams()
     const clients = useSelector((state) => state.clients.clients)
@@ -79,6 +80,26 @@ const Invoice = () => {
     const dispatch = useDispatch()
     const history = useHistory()
     const user = JSON.parse(localStorage.getItem('profile'))
+
+
+    useEffect(() => {
+        getTotalCount()
+         // eslint-disable-next-line
+    },[location])
+
+
+    const getTotalCount = async() => {
+        try {
+          const response = await axios.get(`${process.env.REACT_APP_API}/invoices/count?searchQuery=${user?.result?._id}`);
+        //   console.log(response.data);
+        //Get total count of invoice from the server and increment by one to serialized numbering of invoice
+        setInvoiceData({...invoiceData, invoiceNumber: (Number(response.data) + 1).toString().padStart(3, '0')})
+        } catch (error) {
+          console.error(error);
+        }
+      }
+      
+
 
 
     useEffect(() => {
@@ -91,7 +112,7 @@ const Invoice = () => {
         // eslint-disable-next-line
     }, [dispatch]);
 
-    
+
     useEffect(() => {
         if(invoice) {
             //Automatically set the default invoice values as the ones in the invoice to be updated
@@ -188,6 +209,9 @@ const Invoice = () => {
         // console.log(values)
     }
     
+
+    console.log(invoiceData)
+
     const handleSubmit =  async (e ) => {
         e.preventDefault()
         if(invoice) {
@@ -214,6 +238,11 @@ const Invoice = () => {
             rates: rates, 
             currency: currency, 
             dueDate: selectedDate, 
+            invoiceNumber: `${
+                invoiceData.invoiceNumber < 100 ? 
+                (Number(invoiceData.invoiceNumber)).toString().padStart(3, '0') 
+                : Number(invoiceData.invoiceNumber)
+            }`,
             client, 
             type: type, 
             status: status, 
@@ -250,12 +279,28 @@ const Invoice = () => {
                         {/* <Avatar alt="Logo" variant='square' src="" className={classes.large} /> */}
                     </Grid>
                     <Grid item>
-                        {/* <div style={{paddingTop: '20px'}}>
-                            <SelectType  type={type} setType={setType} />
-                        </div> */}
                         <InvoiceType type={type} setType={setType} />
-                        <Typography variant="overline" style={{color: 'gray'}} >Invoice#: </Typography>
-                        <InputBase defaultValue={invoiceData.invoiceNumber}/>
+                        Invoice #:
+                        <div style={{
+                            marginTop: '15px',
+                            width: '100px',
+                            padding: '8px',
+                            display: 'inline-block',
+                            backgroundColor: '#f4f4f4',
+                            outline: '0px solid transparent'
+                        }} 
+                            contenteditable="true"
+                            onInput={e => setInvoiceData({
+                            ...invoiceData, invoiceNumber: e.currentTarget.textContent})
+                            }
+                        >
+                        <span style={{width:'40px',
+                            color: 'black',
+                            padding: '15px',
+                        }} 
+                            contenteditable="false"> {invoiceData.invoiceNumber}</span>
+                        <br/>
+                        </div>
                     </Grid>
                 </Grid >
             </Container>
@@ -429,8 +474,9 @@ const Invoice = () => {
             </Container>
         </div>
             <div className={styles.note}>
-                <h4>Notes/Terms</h4>
+                <h4>Note/Payment Info</h4>
                 <textarea 
+                style={{border: 'solid 1px #d6d6d6', padding: '10px'}}
                     placeholder="Provide additional details or terms of service"
                     onChange={(e) => setInvoiceData({...invoiceData, notes: e.target.value})}
                     value={invoiceData.notes}

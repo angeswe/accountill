@@ -1,12 +1,12 @@
 {
   "name": "server",
-  "homepage": "arcinvoice.com",
+  "homepage": "accountill.com",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "node index.js"
   },
   "keywords": [],
   "author": "Panshak Solomon",

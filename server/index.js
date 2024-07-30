@@ -1,19 +1,22 @@
+
+//Copyright (c) 2022 Panshak Solomon
+
 import express from 'express'
 import cors from 'cors'
 import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 import nodemailer from 'nodemailer'
-
 import pdf from 'html-pdf'
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 import invoiceRoutes from './routes/invoices.js'
 import clientRoutes from './routes/clients.js'
 import userRoutes from './routes/userRoutes.js'
+
 import profile from './routes/profile.js'
 import pdfTemplate from './documents/index.js'
 // import invoiceTemplate from './documents/invoice.js'
@@ -55,7 +58,7 @@ app.post('/send-pdf', (req, res) => {
        
           // send mail with defined transport object
         transporter.sendMail({
-            from: `${company.businessName ? company.businessName : company.name} <hello@arcinvoice.com>`, // sender address
+            from: ` Accountill <hello@accountill.com>`, // sender address
             to: `${email}`, // list of receivers
             replyTo: `${company.email}`,
             subject: `Invoice from ${company.businessName ? company.businessName : company.name}`, // Subject line
@@ -109,3 +112,4 @@ mongoose.connect(DB_URL, { useNewUrlParser: true, useUnifiedTopology: true})
 
 mongoose.set('useFindAndModify', false)
 mongoose.set('useCreateIndex', true)
+
