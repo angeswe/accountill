@@ -1,4 +1,4 @@
-FROM node:14-alpine AS builder
+FROM node:20-alpine AS builder
 ENV NODE_ENV production
 
 WORKDIR /app
@@ -9,10 +9,10 @@ RUN yarn install --production
 
 COPY client .
 
-RUN npm run build
+RUN yarn build
 
 
-FROM nginx:1.25.2-alpine as production
+FROM nginx:1.27.2-alpine as production
 ENV NODE_ENV production
 
 COPY --from=builder /app/build /usr/share/nginx/html

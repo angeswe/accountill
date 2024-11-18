@@ -68,6 +68,7 @@
   },
   "devDependencies": {
     "@babel/parser": "^7.22.7",
-    "css-loader": "^6.8.1"
+    "css-loader": "^6.8.1",
+    "@babel/plugin-proposal-private-property-in-object": "^7.25.9"
   }
 }
