@@ -74,7 +74,7 @@ const InvoiceDetails = () => {
       paddingTop: theme.spacing(1),
       paddingLeft: theme.spacing(5),
       paddingRight: theme.spacing(1),
-      backgroundColor: '#f2f2f2',
+      //backgroundColor: '#f2f2f2',
       borderRadius: '10px 10px 0px 0px',
     },
   }));
@@ -124,6 +124,7 @@ const InvoiceDetails = () => {
         date: invoice.createdAt,
         id: invoice.invoiceNumber,
         notes: invoice.notes,
+        paymentDetails: invoice.paymentDetails,
         subTotal: toCommas(invoice.subTotal),
         total: toCommas(invoice.total),
         type: invoice.type,
@@ -133,6 +134,8 @@ const InvoiceDetails = () => {
         totalAmountReceived: toCommas(totalAmountReceived),
         balanceDue: toCommas(total - totalAmountReceived),
         company: company,
+        currency: currency,
+        rates: rates,
       })
       .then(() =>
         axios.get(`${process.env.REACT_APP_API}/fetch-pdf`, {
@@ -161,6 +164,7 @@ const InvoiceDetails = () => {
         date: invoice.createdAt,
         id: invoice.invoiceNumber,
         notes: invoice.notes,
+        paymentDetails: invoice.paymentDetails,
         subTotal: toCommas(invoice.subTotal),
         total: toCommas(invoice.total),
         type: invoice.type,
@@ -189,23 +193,41 @@ const InvoiceDetails = () => {
   const [open, setOpen] = useState(false);
 
   function checkStatus() {
-    return totalAmountReceived >= total
+    return totalAmountReceived >= total && total !== 0
       ? 'green'
       : status === 'Partial'
-      ? '#1976d2'
-      : status === 'Paid'
-      ? 'green'
-      : status === 'Unpaid'
-      ? 'red'
-      : 'red';
+        ? '#1976d2'
+        : status === 'Paid'
+          ? 'green'
+          : status === 'Unpaid'
+            ? 'red'
+            : 'red';
+  }
+
+  function checkRemoved() {
+    return invoice.removed
+      ? {
+          backgroundColor: '#f2f2f2',
+        }
+      : {};
   }
 
   if (!invoice) {
     return <Spinner />;
   }
 
+  const formatLineBreaks = (text) => {
+    if (!text) return '';
+    return text.split('\\n').map((line, i) => (
+      <React.Fragment key={i}>
+        {line}
+        {i !== text.split('\\n').length - 1 && <br />}
+      </React.Fragment>
+    ));
+  };
+
   return (
-    <div className={styles.PageLayout}>
+    <div className={styles.PageLayout} style={checkRemoved()}>
       {invoice?.creator?.includes(
         user?.result?._id || user?.result?.googleId,
       ) && (
@@ -279,7 +301,9 @@ const InvoiceDetails = () => {
                   color: 'gray',
                 }}
               >
-                {Number(total - totalAmountReceived) <= 0 ? 'Receipt' : type}
+                {Number(total - totalAmountReceived) <= 0 && total !== 0
+                  ? 'Receipt'
+                  : type}
               </Typography>
               <Typography variant="overline" style={{ color: 'gray' }}>
                 No:{' '}
@@ -351,7 +375,7 @@ const InvoiceDetails = () => {
                 gutterBottom
                 style={{ color: checkStatus() }}
               >
-                {totalAmountReceived >= total ? 'Paid' : status}
+                {totalAmountReceived >= total && total !== 0 ? 'Paid' : status}
               </Typography>
               <Typography
                 variant="overline"
@@ -504,8 +528,16 @@ const InvoiceDetails = () => {
           </div>
 
           <div className={styles.note}>
-            <h4 style={{ marginLeft: '-10px' }}>Note/Payment Info</h4>
-            <p style={{ fontSize: '14px' }}>{invoiceData.notes}</p>
+            <h4 style={{ marginLeft: '-10px' }}>Note</h4>
+            <p style={{ fontSize: '14px' }}>
+              {formatLineBreaks(invoiceData.notes)}
+            </p>
+          </div>
+          <div className={styles.note}>
+            <h4 style={{ marginLeft: '-10px' }}>Payment Info</h4>
+            <p style={{ fontSize: '14px' }}>
+              {formatLineBreaks(invoiceData.paymentDetails)}
+            </p>
           </div>
 
           {/* <button className={styles.submitButton} type="submit">Save and continue</button> */}

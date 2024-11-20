@@ -21,6 +21,14 @@ import LastPageIcon from '@material-ui/icons/LastPage';
 import Container from '@material-ui/core/Container';
 import DeleteOutlineRoundedIcon from '@material-ui/icons/DeleteOutlineRounded';
 import BorderColorIcon from '@material-ui/icons/BorderColor';
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
+} from '@material-ui/core';
 import { useLocation } from 'react-router-dom';
 
 import { deleteInvoice, getInvoicesByUser } from '../../actions/invoiceActions';
@@ -157,6 +165,7 @@ const Invoices = () => {
   const classes = useStyles2();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(rows.length);
+  const [invoiceToDelete, setInvoiceToDelete] = React.useState(null);
 
   const emptyRows =
     rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
@@ -170,6 +179,19 @@ const Invoices = () => {
     setPage(0);
   };
 
+  const handleClickOpen = (invoiceId) => {
+    setInvoiceToDelete(invoiceId);
+  };
+
+  const handleClose = () => {
+    setInvoiceToDelete(null);
+  };
+
+  const handleDelete = (id) => {
+    dispatch(deleteInvoice(id, openSnackbar));
+    handleClose();
+  };
+
   const editInvoice = (id) => {
     navigate(`/edit/invoice/${id}`);
   };
@@ -181,7 +203,16 @@ const Invoices = () => {
   if (!user) {
     navigate('/login');
   }
-
+  function checkRemoved(removed) {
+    return removed
+      ? {
+          backgroundColor: 'rgb(255, 170, 145)',
+          cursor: 'pointer',
+        }
+      : {
+          cursor: 'pointer',
+        };
+  }
   function checkStatus(status) {
     return status === 'Partial'
       ? {
@@ -191,20 +222,20 @@ const Invoices = () => {
           borderRadius: '20px',
         }
       : status === 'Paid'
-      ? {
-          border: 'solid 0px green',
-          backgroundColor: '#a5ffcd',
-          padding: '8px 18px',
-          borderRadius: '20px',
-        }
-      : status === 'Unpaid'
-      ? {
-          border: 'solid 0px red',
-          backgroundColor: '#ffaa91',
-          padding: '8px 18px',
-          borderRadius: '20px',
-        }
-      : 'red';
+        ? {
+            border: 'solid 0px green',
+            backgroundColor: '#a5ffcd',
+            padding: '8px 18px',
+            borderRadius: '20px',
+          }
+        : status === 'Unpaid'
+          ? {
+              border: 'solid 0px red',
+              backgroundColor: '#ffaa91',
+              padding: '8px 18px',
+              borderRadius: '20px',
+            }
+          : 'red';
   }
 
   if (isLoading) {
@@ -275,7 +306,11 @@ const Invoices = () => {
                   )
                 : rows
               ).map((row) => (
-                <TableRow key={row._id} style={{ cursor: 'pointer' }}>
+                <TableRow
+                  key={row._id}
+                  id={row._id}
+                  style={checkRemoved(row.removed)}
+                >
                   <TableCell
                     style={tableStyle}
                     onClick={() => openInvoice(row._id)}
@@ -312,24 +347,23 @@ const Invoices = () => {
                       {row.status}
                     </button>
                   </TableCell>
-
                   <TableCell style={{ ...tableStyle, width: '10px' }}>
-                    <IconButton onClick={() => editInvoice(row._id)}>
-                      <BorderColorIcon
-                        style={{ width: '20px', height: '20px' }}
-                      />
-                    </IconButton>
+                    {!row.removed && (
+                      <IconButton onClick={() => editInvoice(row._id)}>
+                        <BorderColorIcon
+                          style={{ width: '20px', height: '20px' }}
+                        />
+                      </IconButton>
+                    )}
                   </TableCell>
                   <TableCell style={{ ...tableStyle, width: '10px' }}>
-                    <IconButton
-                      onClick={() =>
-                        dispatch(deleteInvoice(row._id, openSnackbar))
-                      }
-                    >
-                      <DeleteOutlineRoundedIcon
-                        style={{ width: '20px', height: '20px' }}
-                      />
-                    </IconButton>
+                    {!row.removed && (
+                      <IconButton onClick={() => handleClickOpen(row._id)}>
+                        <DeleteOutlineRoundedIcon
+                          style={{ width: '20px', height: '20px' }}
+                        />
+                      </IconButton>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
@@ -360,6 +394,30 @@ const Invoices = () => {
             </TableFooter>
           </Table>
         </TableContainer>
+        <Dialog
+          open={Boolean(invoiceToDelete)}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">Delete Invoice</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Are you sure you want to delete this invoice? This action cannot
+              be undone.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button
+              onClick={() => handleDelete(invoiceToDelete)}
+              color="error"
+              autoFocus
+            >
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
     </div>
   );

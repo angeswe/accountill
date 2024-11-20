@@ -7,6 +7,7 @@ import BusinessCenterIcon from '@material-ui/icons/BusinessCenter';
 import LocationOnIcon from '@material-ui/icons/LocationOn';
 import PhoneInTalkIcon from '@material-ui/icons/PhoneInTalk';
 import AlternateEmailIcon from '@material-ui/icons/AlternateEmail';
+import CommentIcon from '@material-ui/icons/CommentRounded';
 import AccountBalanceWalletRoundedIcon from '@material-ui/icons/AccountBalanceWalletRounded';
 import Avatar from '@material-ui/core/Avatar';
 
@@ -38,7 +39,7 @@ export default function ProfileDetail({ profiles }) {
       >
         <Avatar
           alt={profiles?.businessName}
-          src={profiles.logo}
+          src={profiles?.logo}
           className={classes.large}
         />
       </div>
@@ -68,6 +69,10 @@ export default function ProfileDetail({ profiles }) {
             style={{ marginRight: '20px', color: 'gray' }}
           />
           <ListItemText primary={profiles?.paymentDetails} secondary="" />
+        </ListItem>
+        <ListItem>
+          <CommentIcon style={{ marginRight: '20px', color: 'gray' }} />
+          <ListItemText primary={profiles?.notes} secondary="" />
         </ListItem>
       </List>
     </>

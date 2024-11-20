@@ -127,8 +127,17 @@ const Settings = () => {
                   value={form?.contactAddress}
                 />
                 <Input
+                  name="notes"
+                  label="Notes"
+                  handleChange={handleChange}
+                  type="text"
+                  multiline
+                  rows="4"
+                  value={form?.notes}
+                />
+                <Input
                   name="paymentDetails"
-                  label="Payment Details/Notes"
+                  label="Payment Details"
                   handleChange={handleChange}
                   type="text"
                   multiline

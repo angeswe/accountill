@@ -34,6 +34,7 @@ export const signup =
         contactAddress: '',
         logo: '',
         website: '',
+        paymentDetails: '',
       });
       dispatch({ type: CREATE_PROFILE, payload: info });
       window.location.href = '/dashboard';

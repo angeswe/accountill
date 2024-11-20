@@ -71,9 +71,9 @@ export const updateInvoice = (id, invoice) => async (dispatch) => {
 
 export const deleteInvoice = (id, openSnackbar) => async (dispatch) => {
   try {
-    await api.deleteInvoice(id);
+    const { data } = await api.deleteInvoice(id);
 
-    dispatch({ type: DELETE, payload: id });
+    dispatch({ type: DELETE, payload: data });
     openSnackbar('Invoice deleted successfully');
   } catch (error) {
     console.log(error.response);

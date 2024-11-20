@@ -5,14 +5,19 @@ WORKDIR /app
 
 COPY client/package.json .
 COPY client/yarn.lock .
-RUN yarn install --production
+RUN yarn install --frozen-lockfile
+RUN rm -f .env
+COPY client/src ./src
+COPY client/public ./public
 
-COPY client .
+ARG REACT_APP_API
+ARG REACT_APP_URL
+ENV REACT_APP_API=${REACT_APP_API}
+ENV REACT_APP_URL=${REACT_APP_URL}
 
 RUN yarn build
 
-
-FROM nginx:1.27.2-alpine as production
+FROM nginx:1.27.2-alpine AS production
 ENV NODE_ENV production
 
 COPY --from=builder /app/build /usr/share/nginx/html

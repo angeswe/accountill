@@ -17,10 +17,10 @@
     "cors": "^2.8.5",
     "dotenv": "^8.6.0",
     "express": "^4.17.1",
-    "html-pdf": "^3.0.1",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.4",
-    "mongoose": "^5.12.10"
+    "mongoose": "^5.12.10",
+    "puppeteer-html-pdf": "^4.0.8"
   },
   "devDependencies": {
     "nodemailer": "^6.6.3",

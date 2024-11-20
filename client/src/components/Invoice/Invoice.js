@@ -73,11 +73,12 @@ const Invoice = () => {
   const [rates, setRates] = useState(0);
   const [vat, setVat] = useState(0);
   const [currency, setCurrency] = useState(currencies[0].value);
+  const [inputCurrency, setInputCurrency] = useState(currencies[0]);
   const [subTotal, setSubTotal] = useState(0);
   const [total, setTotal] = useState(0);
   const today = new Date();
   const [selectedDate, setSelectedDate] = useState(
-    today.getTime() + 7 * 24 * 60 * 60 * 1000,
+    today.getTime() + 20 * 24 * 60 * 60 * 1000,
   );
   const [client, setClient] = useState(null);
   const [type, setType] = useState('Invoice');
@@ -100,9 +101,14 @@ const Invoice = () => {
         `${process.env.REACT_APP_API}/invoices/count?searchQuery=${user?.result?._id}`,
       );
       //Get total count of invoice from the server and increment by one to serialized numbering of invoice
+      const date = new Date();
       setInvoiceData({
         ...invoiceData,
-        invoiceNumber: (Number(response.data) + 1).toString().padStart(3, '0'),
+        //invoiceNumber: (Number(response.data) + 100 + 1)
+        invoiceNumber: (
+          `${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}` +
+          `-${response.data + 1}`
+        ).toString(),
       });
     } catch (error) {
       console.error(error);
@@ -130,6 +136,10 @@ const Invoice = () => {
       setType(invoice.type);
       setStatus(invoice.status);
       setSelectedDate(invoice.dueDate);
+      setCurrency(invoice.currency);
+      setInputCurrency(
+        currencies.filter((c) => c.value === invoice.currency)[0],
+      );
     }
   }, [invoice]);
 
@@ -215,7 +225,7 @@ const Invoice = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (invoice) {
-      dispatch(
+      await dispatch(
         updateInvoice(invoice._id, {
           ...invoiceData,
           subTotal: subTotal,
@@ -228,8 +238,9 @@ const Invoice = () => {
           type: type,
           status: status,
         }),
-      );
-      navigate(`/invoice/${invoice._id}`);
+      ).then(() => {
+        navigate(`/invoice/${invoice._id}`);
+      });
     } else {
       dispatch(
         createInvoice(
@@ -241,11 +252,7 @@ const Invoice = () => {
             rates: rates,
             currency: currency,
             dueDate: selectedDate,
-            invoiceNumber: `${
-              invoiceData.invoiceNumber < 100
-                ? Number(invoiceData.invoiceNumber).toString().padStart(3, '0')
-                : Number(invoiceData.invoiceNumber)
-            }`,
+            invoiceNumber: invoiceData.invoiceNumber,
             client,
             type: type,
             status: status,
@@ -575,7 +582,7 @@ const Invoice = () => {
               <Grid item style={{ width: 270, marginRight: 10 }}>
                 <Autocomplete
                   {...defaultProps}
-                  id="debug"
+                  id="currency"
                   debug
                   renderInput={(params) => (
                     <TextField
@@ -584,22 +591,38 @@ const Invoice = () => {
                       margin="normal"
                     />
                   )}
-                  value={currency.value}
-                  onChange={(event, value) => setCurrency(value.value)}
+                  value={inputCurrency}
+                  // inputValue={inputCurrency}
+                  // onInputChange={(event, value) => setInputCurrency(value)}
+                  onChange={(event, value) => {
+                    setCurrency(value.value);
+                    setInputCurrency(value);
+                  }}
                 />
               </Grid>
             </Grid>
           </Container>
         </div>
         <div className={styles.note}>
-          <h4>Note/Payment Info</h4>
+          <h4>Note</h4>
           <textarea
             style={{ border: 'solid 1px #d6d6d6', padding: '10px' }}
-            placeholder="Provide additional details or terms of service"
+            placeholder="Provide additional details"
             onChange={(e) =>
               setInvoiceData({ ...invoiceData, notes: e.target.value })
             }
             value={invoiceData.notes}
+          />
+        </div>
+        <div className={styles.note}>
+          <h4>Payment Info</h4>
+          <textarea
+            style={{ border: 'solid 1px #d6d6d6', padding: '10px' }}
+            placeholder="Provide additional Payment details"
+            onChange={(e) =>
+              setInvoiceData({ ...invoiceData, paymentDetails: e.target.value })
+            }
+            value={invoiceData.paymentDetails}
           />
         </div>
 

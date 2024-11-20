@@ -74,6 +74,7 @@ const Login = () => {
         contactAddress: '',
         logo: result?.picture,
         website: '',
+        paymentDetails: '',
       }),
     );
 
@@ -148,8 +149,6 @@ const Login = () => {
           </Grid>
           <div className={styles.buttons}>
             <div>
-              {/* <button className={styles.submitBtn}> { isSignup ? 'Sign Up' : 'Sign In' }</button> */}
-              {/* <ProgressButton>{ isSignup ? 'Sign Up' : 'Sign In' }</ProgressButton> */}
               {loading ? (
                 <CircularProgress />
               ) : (
@@ -157,23 +156,6 @@ const Login = () => {
                   {isSignup ? 'Sign Up' : 'Sign In'}
                 </button>
               )}
-            </div>
-            <div className={styles.option}>
-              <span>or</span>
-            </div>
-            <div>
-              <GoogleOAuthProvider
-                clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
-              >
-                <GoogleLogin
-                  onSuccess={googleSuccess}
-                  onError={googleError}
-                  text="continue_with"
-                  useOneTap
-                  auto_select
-                  state_cookie_domain="single_host_origin"
-                />
-              </GoogleOAuthProvider>
             </div>
           </div>
           <Grid container justifyContent="flex-end">

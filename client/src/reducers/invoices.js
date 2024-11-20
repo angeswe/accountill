@@ -39,9 +39,12 @@ const invoices = (state = { isLoading: true, invoices: [] }, action) => {
     case DELETE:
       return {
         ...state,
-        invoices: state.invoices.filter(
-          (invoice) => invoice._id !== action.payload,
+        invoices: state.invoices.map((invoice) =>
+          invoice._id === action.payload._id ? action.payload : invoice,
         ),
+        // invoices: state.invoices.filter(
+        //   (invoice) => invoice._id !== action.payload,
+        // ),
       };
     default:
       return state;
