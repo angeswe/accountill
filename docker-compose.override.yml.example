@@ -1,0 +1,6 @@
+services:
+  server:
+    environment:
+      - SECRET=${SECRET}
+      - DEBUG=true
+      - NODE_ENV=development

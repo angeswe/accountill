@@ -30,6 +30,7 @@ import axios from 'axios';
 import { saveAs } from 'file-saver';
 import Modal from '../Payments/Modal';
 import PaymentHistory from './PaymentHistory';
+import { formatLineBreaks } from '../../utils/utils';
 
 const InvoiceDetails = () => {
   const location = useLocation();
@@ -215,16 +216,6 @@ const InvoiceDetails = () => {
   if (!invoice) {
     return <Spinner />;
   }
-
-  const formatLineBreaks = (text) => {
-    if (!text) return '';
-    return text.split('\\n').map((line, i) => (
-      <React.Fragment key={i}>
-        {line}
-        {i !== text.split('\\n').length - 1 && <br />}
-      </React.Fragment>
-    ));
-  };
 
   return (
     <div className={styles.PageLayout} style={checkRemoved()}>

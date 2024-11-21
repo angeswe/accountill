@@ -21,11 +21,17 @@ import LastPageIcon from '@material-ui/icons/LastPage';
 import Container from '@material-ui/core/Container';
 import DeleteOutlineRoundedIcon from '@material-ui/icons/DeleteOutlineRounded';
 import BorderColorIcon from '@material-ui/icons/BorderColor';
-import { Button } from '@material-ui/core';
 import { useSnackbar } from 'react-simple-snackbar';
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
+} from '@material-ui/core';
 
 import { deleteClient } from '../../actions/clientActions';
-// import clients from '../../clients.json'
 
 const useStyles1 = makeStyles((theme) => ({
   root: {
@@ -120,6 +126,7 @@ const Clients = ({ setOpen, setCurrentId, clients }) => {
   const [rowsPerPage, setRowsPerPage] = useState(clients.length);
   // eslint-disable-next-line
   const [openSnackbar, closeSnackbar] = useSnackbar();
+  const [clientToDelete, setClientToDelete] = React.useState(null);
 
   const dispatch = useDispatch();
   const rows = clients;
@@ -150,6 +157,19 @@ const Clients = ({ setOpen, setCurrentId, clients }) => {
     textAlign: 'center',
   };
   const headerStyle = { borderBottom: 'none', textAlign: 'center' };
+
+  const handleClickOpen = (invoiceId) => {
+    setClientToDelete(invoiceId);
+  };
+
+  const handleClose = () => {
+    setClientToDelete(null);
+  };
+
+  const handleDelete = (id) => {
+    dispatch(deleteClient(id, openSnackbar));
+    handleClose();
+  };
 
   return (
     <div className={styles.pageLayout}>
@@ -198,11 +218,7 @@ const Clients = ({ setOpen, setCurrentId, clients }) => {
                     </IconButton>
                   </TableCell>
                   <TableCell style={{ ...tableStyle, width: '10px' }}>
-                    <IconButton
-                      onClick={() =>
-                        dispatch(deleteClient(row._id, openSnackbar))
-                      }
-                    >
+                    <IconButton onClick={() => handleClickOpen(row._id)}>
                       <DeleteOutlineRoundedIcon
                         style={{ width: '20px', height: '20px' }}
                       />
@@ -237,6 +253,30 @@ const Clients = ({ setOpen, setCurrentId, clients }) => {
             </TableFooter>
           </Table>
         </TableContainer>
+        <Dialog
+          open={Boolean(clientToDelete)}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">Delete Client</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Are you sure you want to delete this client? This action cannot be
+              undone.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button
+              onClick={() => handleDelete(clientToDelete)}
+              color="error"
+              autoFocus
+            >
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
     </div>
   );

@@ -27,7 +27,7 @@ dotenv.config();
 app.use(express.json({ limit: '30mb', extended: true }));
 app.use(express.urlencoded({ limit: '30mb', extended: true }));
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3002',
+  origin: process.env.FRONTEND_URL || 'http://localhost:8002',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-XSRF-TOKEN'],
   credentials: true,
@@ -87,11 +87,6 @@ app.post('/send-pdf', (req, res) => {
   });
 });
 
-//Problems downloading and sending invoice
-// npm install html-pdf -g
-// npm link html-pdf
-// npm link phantomjs-prebuilt
-
 //CREATE AND SEND PDF INVOICE
 app.post('/create-pdf', async (req, res) => {
   const html = pdfTemplate(req.body);
@@ -114,11 +109,6 @@ app.post('/create-pdf', async (req, res) => {
   } finally {
     await htmlPDF.closeBrowser();
   }
-  //   html_to_pdf
-  //     .generatePdf({ content: html }, { path: 'invoice.pdf' })
-  //     .then((pdfBuffer) => {
-  //       res.send(pdfBuffer);
-  //     });
 });
 
 //SEND PDF INVOICE
@@ -131,7 +121,7 @@ app.get('/', (req, res) => {
 });
 
 const DB_URL = process.env.DB_URL;
-const PORT = process.env.PORT || 31337;
+const PORT = process.env.PORT || 5000;
 
 mongoose
   .connect(DB_URL, { useNewUrlParser: true, useUnifiedTopology: true })

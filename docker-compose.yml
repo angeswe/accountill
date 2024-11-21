@@ -1,0 +1,54 @@
+services:
+  client:
+    container_name: client
+    image: client-prod
+    build:
+      dockerfile: ./client/Dockerfile
+      target: production
+      args:
+        - REACT_APP_API=http://localhost:5002
+        - REACT_APP_URL=http://localhost:8002
+    ports:
+      - '8002:80'
+    depends_on:
+      - server
+      - mongo
+    links:
+      - server
+      - mongo
+  server:
+    container_name: server
+    image: server-prod
+    build:
+      dockerfile: ./server/Dockerfile
+    ports:
+      - '5002:5000'
+    depends_on:
+      - mongo
+    links:
+      - mongo
+    environment:
+      - DB_URL=mongodb://host.docker.internal:27017/accountill
+      - SMTP_HOST=smtp4dev
+      - SMTP_PORT=25
+      - PORT=5000
+      - FRONTEND_URL=http://localhost:8002
+  mongo:
+    image: mongo
+    container_name: MONGODB
+    ports:
+      - '27017'
+    volumes:
+      - mongodb_data:/data/db
+  smtp4dev:
+    image: rnwood/smtp4dev:v3
+    restart: always
+    ports:
+      - 5003:80
+      - 25:25
+      - 143:143
+    volumes:
+      - smtp4dev-data:/smtp4dev
+volumes:
+  mongodb_data:
+  smtp4dev-data:

@@ -10,6 +10,7 @@ import AlternateEmailIcon from '@material-ui/icons/AlternateEmail';
 import CommentIcon from '@material-ui/icons/CommentRounded';
 import AccountBalanceWalletRoundedIcon from '@material-ui/icons/AccountBalanceWalletRounded';
 import Avatar from '@material-ui/core/Avatar';
+import { formatLineBreaks } from '../../../utils/utils';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -68,11 +69,17 @@ export default function ProfileDetail({ profiles }) {
           <AccountBalanceWalletRoundedIcon
             style={{ marginRight: '20px', color: 'gray' }}
           />
-          <ListItemText primary={profiles?.paymentDetails} secondary="" />
+          <ListItemText
+            primary={formatLineBreaks(profiles?.paymentDetails)}
+            secondary=""
+          />
         </ListItem>
         <ListItem>
           <CommentIcon style={{ marginRight: '20px', color: 'gray' }} />
-          <ListItemText primary={profiles?.notes} secondary="" />
+          <ListItemText
+            primary={formatLineBreaks(profiles?.notes)}
+            secondary=""
+          />
         </ListItem>
       </List>
     </>
