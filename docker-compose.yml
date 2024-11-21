@@ -28,7 +28,7 @@ services:
     links:
       - mongo
     environment:
-      - DB_URL=mongodb://host.docker.internal:27017/accountill
+      - DB_URL=mongodb://mongo:27017/accountill
       - SMTP_HOST=smtp4dev
       - SMTP_PORT=25
       - PORT=5000
